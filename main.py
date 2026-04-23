@@ -12,74 +12,26 @@ api_key = st.secrets["GCP_API_KEY"]
 # 1. 페이지 설정
 st.set_page_config(page_title="Dr.Rang | 👑 군주의 실전 투자", layout="centered")
 
-# 2. 🎨 [CSS] 디자인 & 모바일 최적화 (반응형 추가)
+# 2. 🎨 [CSS] 디자인 & 모바일 최적화
 st.markdown("""
     <style>
-    /* 1. 전체 배경 */
     .stApp { background-color: transparent; }
-    
-   /* 2. 버튼 공통: 높이를 자동으로 하여 글자가 짤리지 않게 함 */
-    .stButton button {
-        width: 100% !important;
-        border-radius: 12px !important;
-        font-weight: 800 !important;
-        height: auto !important;
-        padding: 12px 5px !important;
-    }
-
-    /* 3. 윗줄 포인트 버튼: 흰색 바탕에 테두리 */
-    button[key*="p_btn"] {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-        border: 2px solid #eeeeee !important;
-    }
-
-    /* 4. 아랫줄 YES 버튼: 파란색 */
-    button[key*="v_btn_yes"] {
-        background-color: #007bff !important;
-        color: white !important;
-    }
-
-    /* 5. 아랫줄 NO 버튼: 빨간색 */
-    button[key*="v_btn_no"] {
-        background-color: #ff4b4b !important;
-        color: white !important;
-    }
-    
-    /* 6. 포인트 선택 버튼: 흰색 바탕 */
-    div[data-testid="stHorizontalBlock"] button[key*="p_btn"] { 
-        background-color: #ffffff !important; color: #000000 !important; border: 2px solid #ddd !important; font-weight: 900 !important;
-    }
-    
-    /* 랭킹 컨테이너 */
+    .stButton button { width: 100% !important; border-radius: 12px !important; font-weight: 800 !important; height: auto !important; padding: 12px 5px !important; }
+    button[key*="p_btn"] { background-color: #ffffff !important; color: #000000 !important; border: 2px solid #eeeeee !important; }
+    button[key*="v_yes"] { background-color: #007bff !important; color: white !important; }
+    button[key*="v_no"] { background-color: #ff4b4b !important; color: white !important; }
     .ranking-container { background-color: #1e1e1e; padding: 15px; border-radius: 15px; color: white; margin: 15px 0; }
     .rank-row { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #333; }
     .my-rank { background-color: #2c3e50; border: 1px solid #4da3ff; border-radius: 8px; color: #ffcc00; }
-    
-    /* 투자 가이드 박스 */
-    .invest-guide {
-        background-color: #fff9db; border-left: 5px solid #ffcc00; padding: 15px;
-        border-radius: 10px; color: #856404; margin: 15px 0; text-align: center; font-size: 1.1rem; font-weight: bold;
-    }
-
-    /* 대시보드 자산 텍스트 클래스 */
+    .invest-guide { background-color: #fff9db; border-left: 5px solid #ffcc00; padding: 15px; border-radius: 10px; color: #856404; margin: 15px 0; text-align: center; font-size: 1.1rem; font-weight: bold; }
     .balance-text { font-size: 2.8rem; font-weight: 800; color: #4da3ff; }
-
-    /* 명품 푸터 스타일 */
     .premium-footer { text-align: center; padding-top: 50px; padding-bottom: 20px; font-family: 'serif'; }
-    .footer-rank { color: #666; font-size: 1rem; letter-spacing: 1px; margin-bottom: 5px; }
-    
-    /* 섹션 헤더 */
     .section-header { font-size: 1.3rem; font-weight: bold; color: #31333F; margin-top: 25px; margin-bottom: 15px; white-space: nowrap; }
 
-    /* 📱 [모바일 최적화] 화면 폭 600px 이하일 때 적용 */
     @media (max-width: 600px) {
-        .balance-text { font-size: 2.1rem !important; } /* 자산 숫자 크기 축소 */
-        .section-header { font-size: 1.1rem !important; } /* 헤더 크기 축소 */
-        .invest-guide { font-size: 1rem !important; padding: 10px !important; }
-        h1 { font-size: 1.5rem !important; } /* 메인 타이틀 축소 */
-        h3 { font-size: 0.9rem !important; } /* 서브 타이틀 축소 */
-        .stButton button { font-size: 0.85rem !important; } /* 버튼 글자 뭉침 방지 */
+        .balance-text { font-size: 2.1rem !important; }
+        .section-header { font-size: 1.1rem !important; }
+        .stButton button { font-size: 0.85rem !important; }
     }
     </style>
 """, unsafe_allow_html=True)
@@ -100,6 +52,23 @@ ITEMS = [
     {"title": "🛸 감자도리 - 도리도리쏭", "url": "https://youtu.be/sowbaxMLrBY?si=-rVtVWXpGkOOlhw-"},
     {"title": "🤖 감자도리 - 만원쏭", "url": "https://youtu.be/JzSW_7frZNk?si=Kga2UssA3nR-dURj"}
 ]
+
+# --- 🚀 기능 정의 (버튼 실행 전에 위치해야 함) ---
+def play_real_investment(user_prediction):
+    bet_amount = int(st.session_state.p_choice.replace('P',''))
+    if st.session_state.balance < bet_amount:
+        st.error("잔액 부족!"); return
+    market_result = "YES" if random.random() > 0.5 else "NO"
+    with st.spinner('시장의 반응 분석 중...'): time.sleep(1.2)
+    if user_prediction == market_result:
+        st.session_state.balance += bet_amount
+        st.balloons()
+        st.success(f"🎯 적중! 시장도 [{market_result}]였습니다! +{bet_amount:,}P")
+    else:
+        st.session_state.balance -= bet_amount
+        st.error(f"📉 실패! 시장은 [{market_result}]였습니다. -{bet_amount:,}P")
+    st.session_state.bet_status = "finished" 
+    time.sleep(1); st.rerun()
 
 # --- ✨ [상단] 타이틀 영역 ---
 st.markdown("<h1 style='text-align: center; color: #ffcc00; margin-bottom: 0;'>Dr.Rang (닥터랭)</h1>", unsafe_allow_html=True)
@@ -124,32 +93,33 @@ st.markdown(f"<div class='section-header'>📽️ {current_item['title']}</div>"
 st.video(current_item['url'])
 st.markdown(f"""<div class="invest-guide">이 아이템이 성공 할까요?</div>""", unsafe_allow_html=True)
 
-# --- 💰 [1단] 투자 포인트 선택 (3칸 배치) ---
+# --- 💰 [윗줄] 투자 포인트 선택 (3칸) ---
 st.markdown(f"<div class='section-header'>💰 투자 포인트 선택</div>", unsafe_allow_html=True)
-p_cols = st.columns(3)
+p_col1, p_col2, p_col3 = st.columns(3)
 pts = ["100P", "500P", "1000P"]
 
 for i, p_val in enumerate(pts):
-    with p_cols[i]:
+    with [p_col1, p_col2, p_col3][i]:
         label = f"✔️ {p_val}" if st.session_state.p_choice == p_val else p_val
         if st.button(label, key=f"p_btn_{p_val}", use_container_width=True, disabled=(st.session_state.bet_status == "finished")):
             st.session_state.p_choice = p_val
             st.rerun()
 
-# --- 🔥 [2단] YES / NO 결정 (2칸 배치) ---
-st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True) 
-v_cols = st.columns(2)
+# --- 🔥 [아랫줄] YES / NO 결정 (2칸) ---
+st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+v_col1, v_col2 = st.columns(2)
 
-with v_cols[0]:
-    if st.button("YES 🔥", key="v_btn_yes", type="primary", use_container_width=True, disabled=(st.session_state.bet_status == "finished")):
+with v_col1:
+    if st.button("YES 🔥", key="v_yes", type="primary", use_container_width=True, disabled=(st.session_state.bet_status == "finished")):
         play_real_investment("YES")
 
-with v_cols[1]:
-    if st.button("NO ❄️", key="v_btn_no", use_container_width=True, disabled=(st.session_state.bet_status == "finished")):
+with v_col2:
+    if st.button("NO ❄️", key="v_no", use_container_width=True, disabled=(st.session_state.bet_status == "finished")):
         play_real_investment("NO")
 
+# 다음 아이템 버튼 (결과 확인 후)
 if st.session_state.bet_status == "finished":
-    if st.button("🚀 다음 아이템 투자하기 (영상 교체)", use_container_width=True):
+    if st.button("🚀 다음 아이템 투자하기", use_container_width=True):
         st.session_state.bet_status = "waiting"
         st.session_state.item_index = (st.session_state.item_index + 1) % len(ITEMS)
         st.session_state.lyrics = None
@@ -173,64 +143,38 @@ st.markdown("<div class='section-header'>🎵 1단계: 나만의 랭송 만들�
 song_style = st.radio("🎸 노래 스타일 선택", ["🎤 감성 가요 버전 (Full)", "📢 강렬 홍보쏭 버전 (Short)"], horizontal=True)
 user_story = st.text_area("스토리를 입력하세요", value=f"{current_item['title']} 투자 군주의 심정", height=100)
 
-if st.button("🚀 AI 작사 시작 (Gemini 3 정식 엔진 가동)", type="primary", use_container_width=True):
+if st.button("🚀 AI 작사 시작", type="primary", use_container_width=True):
     models = ["gemini-3-flash", "gemini-3-pro", "gemini-2.5-flash", "gemini-1.5-flash"]
-    
     if "홍보쏭" in song_style:
         prompt = f"너는 최고의 전문 작사가다. [Hook], [Verse], [Hook] 형식의 짧고 강렬한 30초 분량 홍보 CM송 가사만 써줘. 주제: '{user_story}'"
     else:
         prompt = f"너는 최고의 전문 작사가다. [Verse 1], [Chorus], [Verse 2], [Chorus], [Outro] 형식의 풀버전 K-pop 가사만 써줘. 주제: '{user_story}'"
 
     success = False
-    error_logs = []
-    
-    with st.status("🛠️ 정식 엔진 경로(v1) 탐색 중...", expanded=True) as status:
-        for idx, m_name in enumerate(models):
-            st.write(f"🔄 ({idx+1}/{len(models)}) {m_name} 엔진 가동 시도...")
+    with st.status("🛠️ AI 작사 엔진 가동 중...", expanded=True) as status:
+        for m_name in models:
             try:
-                for path in ["v1", "v1beta"]:
-                    url = f"https://generativelanguage.googleapis.com/{path}/models/{m_name}:generateContent?key={MY_API_KEY}"
-                    res = requests.post(url, headers={'Content-Type': 'application/json'}, 
-                                        data=json.dumps({"contents": [{"parts": [{"text": prompt}]}]}), timeout=30)
-                    
-                    if res.status_code == 200:
-                        data = res.json()
-                        if 'candidates' in data and data['candidates'][0].get('content'):
-                            st.session_state.lyrics = data['candidates'][0]['content']['parts'][0]['text']
-                            status.update(label="✨ 작사 완료!", state="complete", expanded=False)
-                            success = True; break
-                    elif res.status_code == 404: continue
-                if success: break
-                else:
-                    err_msg = res.json().get('error', {}).get('message', 'Engine Failure')
-                    error_logs.append(f"{m_name}: {res.status_code} ({err_msg})")
-            except Exception as e:
-                error_logs.append(f"{m_name}: {str(e)}")
-                continue
-                
+                url = f"https://generativelanguage.googleapis.com/v1/models/{m_name}:generateContent?key={MY_API_KEY}"
+                res = requests.post(url, headers={'Content-Type': 'application/json'}, 
+                                    data=json.dumps({"contents": [{"parts": [{"text": prompt}]}]}), timeout=30)
+                if res.status_code == 200:
+                    data = res.json()
+                    st.session_state.lyrics = data['candidates'][0]['content']['parts'][0]['text']
+                    status.update(label="✨ 작사 완료!", state="complete", expanded=False)
+                    success = True; break
+            except: continue
     if success: st.rerun()
-    else:
-        st.error("❌ 작사 실패. API 키나 로그를 확인하세요.")
-        with st.expander("에러 상세 로그"):
-            for log in error_logs: st.write(log)
 
 if st.session_state.lyrics:
     st.markdown("<div class='section-header'>✨ 완성된 가사</div>", unsafe_allow_html=True)
     st.code(st.session_state.lyrics)
-    safe_lyrics = st.session_state.lyrics.replace("`", "'").replace("\n", "\\n")
-    copy_js = f"""<button onclick="copyToClipboard()" style="width:100%; height:48px; background-color:#28a745; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">📋 가사 복사하기</button><script>function copyToClipboard() {{const text = `{safe_lyrics}`;const el = document.createElement('textarea');el.value = text;document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);alert('가사가 복사되었습니다!');}}</script>"""
-    components.html(copy_js, height=60)
     st.link_button("🔥 Suno 열고 노래 만들기", "https://suno.com/create", use_container_width=True)
 
 # --- ✨ [엔딩] 명품 푸터 ---
 st.markdown("<br><br><hr style='border: 0.5px solid #eee;'>", unsafe_allow_html=True)
 st.markdown(f"""
     <div class="premium-footer">
-        <div class="footer-rank">
-            PM PALM <span style="font-weight: 700; color: #444;">DecisionRank</span><sup style="font-size: 0.6rem;">TM</sup> 88.52 Ver.
-        </div>
-        <div style="color: #999; font-size: 0.75rem; letter-spacing: 1px; margin-top: 5px;">
-            © 2026 Dr.Rang AI Lab. All Rights Reserved.
-        </div>
+        <div class="footer-rank">PM PALM <span style="font-weight: 700; color: #444;">DecisionRank</span><sup style="font-size: 0.6rem;">TM</sup> 88.52 Ver.</div>
+        <div style="color: #999; font-size: 0.75rem; letter-spacing: 1px; margin-top: 5px;">© 2026 Dr.Rang AI Lab. All Rights Reserved.</div>
     </div>
 """, unsafe_allow_html=True)
