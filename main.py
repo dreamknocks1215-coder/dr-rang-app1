@@ -72,7 +72,7 @@ def play_real_investment(user_prediction):
 
 # --- ✨ [상단] 타이틀 영역 ---
 st.markdown("<h1 style='text-align: center; color: #ffcc00; margin-bottom: 0;'>Dr.Rang (닥터랭)</h1>", unsafe_allow_html=True)
-st.markdown("<h3 style='text-align: center; color: #ffcc00; margin-top: 5px; font-weight: normal;'>당신의 스토리가 음악이 되는 공간</h3>", unsafe_allow_html=True)
+st.markdown("<h3 style='text-align: center; color: #ffcc00; margin-top: 5px; font-weight: normal; font-size: 1.0rem; white-space: nowrap;'>당신의 스토리가 음악이 되는 공간</h3>", unsafe_allow_html=True)
 st.markdown("<div style='text-align: center; font-size: 0.95rem; color: #ffcc00; margin-top: 5px; margin-bottom: 25px; font-weight: bold;'>👑 군주의 실전 투자</div>", unsafe_allow_html=True)
 
 # --- 1. 대시보드 ---
