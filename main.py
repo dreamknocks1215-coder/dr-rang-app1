@@ -107,12 +107,19 @@ st.markdown(f"<div class='section-header'>📽️ {current_item['title']}</div>"
 st.video(current_item['url'])
 st.markdown(f"""<div class="invest-guide">이 아이템이 성공 할까요?</div>""", unsafe_allow_html=True)
 
+# --- 💰 투자 포인트 선택 (가로 배치 최적화) ---
+st.markdown(f"<div class='section-header'>💰 투자 포인트 선택</div>", unsafe_allow_html=True)
+
+# 한 줄에 3개의 칸을 만들어 버튼을 가로로 정렬합니다.
 p_col1, p_col2, p_col3 = st.columns(3)
 pts = ["100P", "500P", "1000P"]
+
 for i, p_val in enumerate(pts):
     with [p_col1, p_col2, p_col3][i]:
+        # 선택된 포인트는 체크 표시를 넣어 강조합니다.
         label = f"✔️ {p_val}" if st.session_state.p_choice == p_val else p_val
-        if st.button(label, key=f"p_{p_val}", disabled=(st.session_state.bet_status == "finished")):
+        # use_container_width=True를 넣어 모바일 화면 폭에 꽉 차게 만듭니다.
+        if st.button(label, key=f"p_{p_val}", disabled=(st.session_state.bet_status == "finished"), use_container_width=True):
             st.session_state.p_choice = p_val
             st.rerun()
 
