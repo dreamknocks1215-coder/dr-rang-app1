@@ -18,28 +18,32 @@ st.markdown("""
     /* 1. 전체 배경 */
     .stApp { background-color: transparent; }
     
-    /* 2. 버튼 공통 스타일 (수정됨: 높이 고정 해제) */
-    .stButton button { 
-        width: 100% !important; 
-        border-radius: 10px !important; 
-        font-weight: bold !important; 
-        margin: 0 !important;
-        padding: 10px 5px !important; /* 안쪽 여백으로 높이 조절 */
-        height: auto !important;      /* 고정 높이 48px를 삭제하고 자동으로 설정 */
-    }
-    
-    /* 3. 버튼들 사이의 간격 미세 조정 */
-    [data-testid="stHorizontalBlock"] {
-        align-items: center !important;
-        gap: 8px !important; /* 버튼 사이의 간격을 일정하게 */
+   /* 2. 버튼 공통: 높이를 자동으로 하여 글자가 짤리지 않게 함 */
+    .stButton button {
+        width: 100% !important;
+        border-radius: 12px !important;
+        font-weight: 800 !important;
+        height: auto !important;
+        padding: 12px 5px !important;
     }
 
-    /* 4. YES 버튼: 파란색 */
-    button[kind="primary"] { background-color: #007bff !important; color: white !important; }
-    
-    /* 5. NO 버튼: 빨간색 (위치 기반 설정) */
-    div[data-testid="stHorizontalBlock"] div[data-testid="stColumn"] button[key*="no"] {
-        background-color: #ff4b4b !important; color: white !important; font-weight: 900 !important;
+    /* 3. 윗줄 포인트 버튼: 흰색 바탕에 테두리 */
+    button[key*="p_btn"] {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border: 2px solid #eeeeee !important;
+    }
+
+    /* 4. 아랫줄 YES 버튼: 파란색 */
+    button[key*="v_btn_yes"] {
+        background-color: #007bff !important;
+        color: white !important;
+    }
+
+    /* 5. 아랫줄 NO 버튼: 빨간색 */
+    button[key*="v_btn_no"] {
+        background-color: #ff4b4b !important;
+        color: white !important;
     }
     
     /* 6. 포인트 선택 버튼: 흰색 바탕 */
@@ -120,41 +124,29 @@ st.markdown(f"<div class='section-header'>📽️ {current_item['title']}</div>"
 st.video(current_item['url'])
 st.markdown(f"""<div class="invest-guide">이 아이템이 성공 할까요?</div>""", unsafe_allow_html=True)
 
-# --- 💰 투자 포인트 선택 (가로 배치 최적화) ---
+# --- 💰 [1단] 투자 포인트 선택 (3칸 배치) ---
 st.markdown(f"<div class='section-header'>💰 투자 포인트 선택</div>", unsafe_allow_html=True)
-
-# 한 줄에 3개의 칸을 만들어 버튼을 가로로 정렬합니다.
-p_col1, p_col2, p_col3 = st.columns(3)
+p_cols = st.columns(3)
 pts = ["100P", "500P", "1000P"]
 
 for i, p_val in enumerate(pts):
-    with [p_col1, p_col2, p_col3][i]:
+    with p_cols[i]:
         label = f"✔️ {p_val}" if st.session_state.p_choice == p_val else p_val
-        st.button(label, key=f"p_btn_{p_val}", use_container_width=True) # key값 변경으로 충돌 방지
-        
-bet_amount = int(st.session_state.p_choice.replace('P',''))
-def play_real_investment(user_prediction):
-    if st.session_state.balance < bet_amount:
-        st.error("잔액 부족!"); return
-    market_result = "YES" if random.random() > 0.5 else "NO"
-    with st.spinner('시장의 반응 분석 중...'): time.sleep(1.2)
-    if user_prediction == market_result:
-        st.session_state.balance += bet_amount
-        st.balloons()
-        st.success(f"🎯 적중! 시장도 [{market_result}]였습니다! +{bet_amount:,}P")
-        wait_time = 2.5
-    else:
-        st.session_state.balance -= bet_amount
-        st.error(f"📉 실패! 시장은 [{market_result}]였습니다. -{bet_amount:,}P")
-        wait_time = 0.5
-    st.session_state.bet_status = "finished" 
-    time.sleep(wait_time); st.rerun()
+        if st.button(label, key=f"p_btn_{p_val}", use_container_width=True, disabled=(st.session_state.bet_status == "finished")):
+            st.session_state.p_choice = p_val
+            st.rerun()
 
-v_col1, v_col2 = st.columns(2)
-with v_col1:
-    if st.button("YES 🔥", key="v_yes", type="primary", disabled=(st.session_state.bet_status == "finished")): play_real_investment("YES")
-with v_col2:
-    if st.button("NO ❄️", key="v_no", disabled=(st.session_state.bet_status == "finished")): play_real_investment("NO")
+# --- 🔥 [2단] YES / NO 결정 (2칸 배치) ---
+st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True) 
+v_cols = st.columns(2)
+
+with v_cols[0]:
+    if st.button("YES 🔥", key="v_btn_yes", type="primary", use_container_width=True, disabled=(st.session_state.bet_status == "finished")):
+        play_real_investment("YES")
+
+with v_cols[1]:
+    if st.button("NO ❄️", key="v_btn_no", use_container_width=True, disabled=(st.session_state.bet_status == "finished")):
+        play_real_investment("NO")
 
 if st.session_state.bet_status == "finished":
     if st.button("🚀 다음 아이템 투자하기 (영상 교체)", use_container_width=True):
