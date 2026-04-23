@@ -15,22 +15,35 @@ st.set_page_config(page_title="Dr.Rang | 👑 군주의 실전 투자", layout="
 # 2. 🎨 [CSS] 디자인 & 모바일 최적화 (반응형 추가)
 st.markdown("""
     <style>
-    /* 전체 배경 */
+    /* 1. 전체 배경 */
     .stApp { background-color: transparent; }
     
-    /* 버튼 공통 스타일 */
-    .stButton button { height: 48px !important; border-radius: 10px !important; font-weight: bold !important; width: 100% !important; margin: 0 !important; }
+    /* 2. 버튼 공통 스타일 (수정됨: 높이 고정 해제) */
+    .stButton button { 
+        width: 100% !important; 
+        border-radius: 10px !important; 
+        font-weight: bold !important; 
+        margin: 0 !important;
+        padding: 10px 5px !important; /* 안쪽 여백으로 높이 조절 */
+        height: auto !important;      /* 고정 높이 48px를 삭제하고 자동으로 설정 */
+    }
     
-    /* YES 버튼: 파란색 */
+    /* 3. 버튼들 사이의 간격 미세 조정 */
+    [data-testid="stHorizontalBlock"] {
+        align-items: center !important;
+        gap: 8px !important; /* 버튼 사이의 간격을 일정하게 */
+    }
+
+    /* 4. YES 버튼: 파란색 */
     button[kind="primary"] { background-color: #007bff !important; color: white !important; }
     
-    /* NO 버튼: 빨간색 */
-    div[data-testid="stHorizontalBlock"]:nth-of-type(2) div[data-testid="stColumn"]:nth-of-type(2) button {
+    /* 5. NO 버튼: 빨간색 (위치 기반 설정) */
+    div[data-testid="stHorizontalBlock"] div[data-testid="stColumn"] button[key*="no"] {
         background-color: #ff4b4b !important; color: white !important; font-weight: 900 !important;
     }
     
-    /* 포인트 선택 버튼 */
-    div[data-testid="stHorizontalBlock"]:nth-of-type(1) button { 
+    /* 6. 포인트 선택 버튼: 흰색 바탕 */
+    div[data-testid="stHorizontalBlock"] button[key*="p_btn"] { 
         background-color: #ffffff !important; color: #000000 !important; border: 2px solid #ddd !important; font-weight: 900 !important;
     }
     
@@ -116,13 +129,9 @@ pts = ["100P", "500P", "1000P"]
 
 for i, p_val in enumerate(pts):
     with [p_col1, p_col2, p_col3][i]:
-        # 선택된 포인트는 체크 표시를 넣어 강조합니다.
         label = f"✔️ {p_val}" if st.session_state.p_choice == p_val else p_val
-        # use_container_width=True를 넣어 모바일 화면 폭에 꽉 차게 만듭니다.
-        if st.button(label, key=f"p_{p_val}", disabled=(st.session_state.bet_status == "finished"), use_container_width=True):
-            st.session_state.p_choice = p_val
-            st.rerun()
-
+        st.button(label, key=f"p_btn_{p_val}", use_container_width=True) # key값 변경으로 충돌 방지
+        
 bet_amount = int(st.session_state.p_choice.replace('P',''))
 def play_real_investment(user_prediction):
     if st.session_state.balance < bet_amount:
